@@ -29,6 +29,8 @@ $ z thx.github.io   # cd into a jekyll site.
 $ darko serve
 ```
 
+Now point your browser to <http://localhost:4100>.
+
 ## Why?
 
 Jekyll is an awesome tool. It is the de facto static site generator for it

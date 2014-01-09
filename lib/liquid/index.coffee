@@ -76,52 +76,57 @@ Liquid.Template.registerTag "include", do ->
 Liquid.Template.extParse = (src, importer) ->
   baseTemplate = new Liquid.Template
   baseTemplate.importer = importer
-  baseTemplate.parse src
 
-  return Q(baseTemplate) unless baseTemplate.extends
-
-  stack = [baseTemplate]
-  depth = 0
   deferred = Q.defer()
 
-  walker = (tmpl, cb) ->
-    return cb() unless tmpl.extends
+  Q.fcall(() ->
+    baseTemplate.parse src
+  ).then(() ->
+    return baseTemplate unless baseTemplate.extends
 
-    tmpl.importer tmpl.extends, (err, data) ->
-      return cb err if err
-      return cb "too many `extends`" if depth > 100
-      depth++
+    deferred = Q.defer()
+    stack = [baseTemplate]
+    depth = 0
 
-      Liquid.Template.extParse(data, importer)
-        .then((subTemplate) ->
-          stack.unshift subTemplate
-          walker subTemplate, cb
-        )
-        .fail((err) -> cb(err ? "Failed to parse template."))
+    walker = (tmpl, cb) ->
+      return cb() unless tmpl.extends
 
-  walker stack[0], (err) =>
-    return deferred.reject err if err
+      tmpl.importer tmpl.extends, (err, data) ->
+        return cb err if err
+        return cb "too many `extends`" if depth > 100
+        depth++
 
-    [rootTemplate, subTemplates...] = stack
+        Liquid.Template.extParse(data, importer)
+          .then((subTemplate) ->
+            stack.unshift subTemplate
+            walker subTemplate, cb
+          )
+          .fail((err) -> cb(err ? "Failed to parse template."))
 
-    # Queries should find the block of the lowest,
-    # most specific child.
-    #
-    # query   | root.a | c1.a | c2.a | result
-    # ---------------------------------------
-    # a       |        | "C1" |      | "C1"
-    # a       | "ROOT" | "C1" | "C2" | "C2"
-    #
-    subTemplates.forEach (subTemplate) ->
+    walker stack[0], (err) =>
+      return deferred.reject err if err
 
-      # blocks
-      subTemplateBlocks = subTemplate.exportedBlocks or {}
-      rootTemplateBlocks = rootTemplate.exportedBlocks or {}
-      rootTemplateBlocks[k]?.replace(v) for own k, v of subTemplateBlocks
+      [rootTemplate, subTemplates...] = stack
 
-    deferred.resolve rootTemplate
+      # Queries should find the block of the lowest,
+      # most specific child.
+      #
+      # query   | root.a | c1.a | c2.a | result
+      # ---------------------------------------
+      # a       |        | "C1" |      | "C1"
+      # a       | "ROOT" | "C1" | "C2" | "C2"
+      #
+      subTemplates.forEach (subTemplate) ->
 
-  deferred.promise
+        # blocks
+        subTemplateBlocks = subTemplate.exportedBlocks or {}
+        rootTemplateBlocks = rootTemplate.exportedBlocks or {}
+        rootTemplateBlocks[k]?.replace(v) for own k, v of subTemplateBlocks
+
+      deferred.resolve rootTemplate
+
+    deferred.promise
+  )
 
 Liquid.Template.registerFilter
   date: (input, format) ->

@@ -7,7 +7,9 @@ var program = require('commander')
 program
   .option('-s --source [source]', 'Source directory (default to ./)', './')
   .option('-d --destination [dest]', 'Destination directory (default to ./_site)', './_site')
-  .option('--config [CONFIG_FILE[,CONFIG_FILE2,...]]', 'Custom configuration file')
+  .option('--config [CONFIG_FILE[,CONFIG_FILE2,...]]', 'Custom configuration file', function(config) {
+    return config.split(',')
+  })
   .option('--future', 'Publishes posts with a future date')
   .option('--limit_posts [MAX_POSTS]', 'Limits the number of posts to parse and build')
   .option('-w --watch', 'Watch for changes and rebuild')
@@ -30,19 +32,24 @@ program.on('--help', function() {
 program.parse(process.argv)
 
 
+if (program.verbose) {
+  process.env.DEBUG = 'darko,' + (process.env.DEBUG || '')
+}
+
 var http = require('http')
 var path = require('path')
-var util = require('util')
 var fs = require('fs')
 var debug = require('debug')('darko')
 var Site = require('..').Site
+var util = require('..').util
 
 
 var site = new Site({
   cwd: program.source,
   dest: program.destination,
   drafts: program.drafts,
-  baseurl: program.baseurl
+  baseurl: program.baseurl,
+  config: program.config
 })
 
 process.stdin.resume()
@@ -51,12 +58,15 @@ site.parse()
 site.write()
   .fail(function(err) {
     if (program.trace) console.error(err.stack)
-    else util.error(err.message)
+    else util.fatal(err.message)
   })
   .done(serve)
 
 function serve() {
-  http.createServer(handle).listen(program.port, program.host)
+  http.createServer(handle).listen(program.port, program.host, function() {
+    util.log('Server address', 'http://127.0.0.1:' + program.port)
+    util.log('Server running', 'press ctrl-c to stop')
+  })
 }
 
 function handle(req, res) {
