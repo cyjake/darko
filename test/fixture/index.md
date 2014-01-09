@@ -10,5 +10,5 @@ Let's make a front page then just sit around and wait for profit!
 {% for post in category[1] %}
   <li><a href="{{ post.url }}">{{ post.title }}</a></li>
 {% endfor %}
-{% endif %}{% endfor $}
+{% endif %}{% endfor %}
 </ul>

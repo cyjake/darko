@@ -28,7 +28,9 @@ var util = require('..').util
 
 var site = new Site({
   cwd: program.source,
-  dest: program.destination
+  dest: program.destination,
+  includeDrafts: program.drafts,
+  includeFuture: program.future
 })
 
 site.parse()

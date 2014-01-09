@@ -1,4 +1,4 @@
-#!/usr/bin/env node-dev
+#!/usr/bin/env node
 
 
 var program = require('commander')
@@ -47,7 +47,8 @@ var util = require('..').util
 var site = new Site({
   cwd: program.source,
   dest: program.destination,
-  drafts: program.drafts,
+  includeDrafts: program.drafts,
+  includeFuture: program.future,
   baseurl: program.baseurl,
   config: program.config
 })
