@@ -1,0 +1,71 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #1E2733;
+    font-size: 14px;
+    line-height: 1.5;
+    font-family: 'helvetica neue',tahoma,'hiragino sans gb',stheiti,'wenquanyi micro hei',\5FAE\8F6F\96C5\9ED1,\5B8B\4F53,sans-serif;
+    text-align: center;
+}
+
+#page {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    color: #f0f0f0;
+}
+
+h1 {
+    color: #f40;
+    font-size: 80px;
+    font-weight: 800;
+    font-family: Georgia, serif;
+    text-shadow: rgba(0, 0, 0, 0.8) 0 0 3px;
+    margin-bottom: 0;
+}
+
+img {
+    max-width: 100%;
+    border-radius: 2px;
+    box-shadow: rgba(0, 0, 0, 0.8) 0 0 3px;
+}
+
+a:link,
+a:visited {
+    color: #f0f0f0;
+}
+
+a:hover {
+    color: #f40;
+}
+
+@media (max-width: 799px) {
+    #page {
+        padding: 20px;
+    }
+}
+
+@media (min-width: 800px) {
+    #page {
+        /* If padding of #page is not set, the margin-top of h1 won't work.
+         * Just weird.
+         */
+        padding: 1px;
+    }
+
+    #doudou {
+        float: left;
+        width: 48%;
+        margin-top: 1em;
+    }
+
+    #guide {
+        float: left;
+        width: 48%;
+        margin-left: 2%;
+    }
+}

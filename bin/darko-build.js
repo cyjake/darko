@@ -41,6 +41,6 @@ site.write()
     else util.fatal(err.message)
   })
   .done(function() {
-    console.log('Generation succeeded')
+    util.log('Generating', '... done')
   })
 

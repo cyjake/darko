@@ -1,5 +1,6 @@
 var path = require('path')
 var Site = require('..').Site
+var util = require('..').util
 
 
 var site = new Site({
@@ -13,4 +14,6 @@ site.write()
     console.error('Generation failed:')
     console.error(err.stack)
   })
-  .done()
+  .done(function() {
+    util.log('Generating', '... done')
+  })
