@@ -1,0 +1,21 @@
+{
+  "name": "darko",
+  "version": "0.0.1",
+  "dependencies": {
+    "liquid-node": "~0.1.2",
+    "js-yaml": "~3.0.1",
+    "lodash": "~2.4.1",
+    "markit": "~0.1.0",
+    "q": "~1.0.0",
+    "mkdirp": "~0.3.5",
+    "rimraf": "~2.2.5",
+    "commander": "~2.1.0",
+    "highlight.js": "~7.5.0",
+    "debug": "~0.7.4"
+  },
+  "bin": {
+    "darko": "bin/darko.js",
+    "darko-build": "bin/darko-build.js",
+    "darko-serve": "bin/darko-serve.js"
+  }
+}
