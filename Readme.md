@@ -8,10 +8,10 @@ Works:
 
 - darko build
 - darko serve
+- darko serve --watch
 
 Will be working shortly, stay tuned:
 
-- darko serve --watch
 - darko new
 
 Liquid filters to be added:
