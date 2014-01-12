@@ -1,7 +1,13 @@
 Q = require('q')
 Liquid = require('liquid-node')
 md = require('../markdown')
+highlight = require('../highlight')
 
+
+WEEKDAY_ABBRS = 'Sun Mon Tue Wed Thu Fri Sat'.split ' '
+WEEKDAYS = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split ' '
+MONTH_ABBRS = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split ' '
+MONTHS = 'January Feburary March April May June July August September October November December'.split ' '
 
 Liquid.Template.registerTag "block", do ->
   class BlockBlock extends Liquid.Block
@@ -19,6 +25,11 @@ Liquid.Template.registerTag "block", do ->
 
     replace: (block) ->
       @nodelist = block.nodelist
+
+Liquid.Template.registerTag "highlight", do ->
+  class HighlightBlock extends Liquid.Block
+    render: (context) ->
+      highlight.render(@nodelist.join('').trim(), @markup)
 
 Liquid.Template.registerTag "extends", do ->
   class ExtendsTag extends Liquid.Tag
@@ -72,6 +83,50 @@ Liquid.Template.registerTag "include", do ->
       context.lastScope().include = include
 
       @included.then (i) -> i.render context
+
+Liquid.Template.registerFilter
+  date: (input, format) ->
+    return input unless input?
+
+    pad = (str, chr, width) ->
+      str = '' + str
+      len = Math.max(0, width - str.length)
+      Array(len).join(chr) + str
+
+    # Liquid StandFilters:
+    # > http://liquid.rubyforge.org/classes/Liquid/StandardFilters.html#M000012
+    #
+    # But there's more to implement:
+    # > http://ruby-doc.org/stdlib-2.1.0/libdoc/date/rdoc/Date.html#method-i-strftime
+    #
+    return format.replace /%([a-zA-Z])/g, (m, f) ->
+      switch f
+        when 'a' then WEEKDAY_ABBRS[input.getDay()]
+        when 'A' then WEEKDAYS[input.getDay()]
+        when 'b' then MONTN_ABBRS[input.getMonth()]
+        when 'B' then MONTHS[input.getMonth()]
+        # To be implemented 'd'
+        when 'd' then pad(input.getDate(), '0', 2)
+        when 'e' then input.getDate()
+        when 'H' then pad(input.getHours(), '0', 2)
+        when 'I' then pad(input.getHours() % 12, '0', 2)
+        when 'j'
+          days = (+input - (new Date(input.getFullYear(), 0, 1))) / 1000 / 60 / 60 / 24
+          pad(days, '0', 3)
+        when 'm' then pad(input.getMonth(), '0', 2)
+        when 'M' then pad(input.getMinutes(), '0', 2)
+        when 'p' then input.getHours() >= 12 ? 'PM' : 'AM'
+        when 'S' then pad(input.getSeconds(), '0', 2)
+        # To be implemented 'U' and 'W'
+        when 'w' then input.getDay()
+        # To be implemented 'x' and 'X'
+        when 'y' then input.getFullYear() / 100
+        when 'Y' then input.getFullYear()
+        # To be implemented 'z'
+        else f
+
+  markdownify: (input) ->
+    md(input)
 
 Liquid.Template.extParse = (src, importer) ->
   baseTemplate = new Liquid.Template
@@ -127,52 +182,5 @@ Liquid.Template.extParse = (src, importer) ->
 
     deferred.promise
   )
-
-Liquid.Template.registerFilter
-  date: (input, format) ->
-    WEEKDAY_ABBRS = 'Sun Mon Tue Wed Thu Fri Sat'.split ' '
-    WEEKDAYS = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split ' '
-    MONTH_ABBRS = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split ' '
-    MONTHS = 'January Feburary March April May June July August September October November December'.split ' '
-
-    pad = (str, chr, width) ->
-      str = '' + str
-      len = Math.max(0, width - str.length)
-      Array(len).join(chr) + str
-
-    # Liquid StandFilters:
-    # > http://liquid.rubyforge.org/classes/Liquid/StandardFilters.html#M000012
-    #
-    # But there's more to implement:
-    # > http://ruby-doc.org/stdlib-2.1.0/libdoc/date/rdoc/Date.html#method-i-strftime
-    #
-    return format.replace /%(\w+?)/g, (m, f) ->
-      switch f
-        when 'a' then WEEKDAY_ABBRS[input.getDay()]
-        when 'A' then WEEKDAYS[input.getDay()]
-        when 'b' then MONTN_ABBRS[input.getMonth()]
-        when 'B' then MONTHS[input.getMonth()]
-        # To be implemented 'd'
-        when 'd' then pad(input.getDate(), '0', 2)
-        when 'e' then input.getDate()
-        when 'H' then pad(input.getHours(), '0', 2)
-        when 'I' then pad(input.getHours() % 12, '0', 2)
-        when 'j'
-          days = (+input - (new Date(input.getFullYear(), 0, 1))) / 1000 / 60 / 60 / 24
-          pad(days, '0', 3)
-        when 'm' then pad(input.getMonth(), '0', 2)
-        when 'M' then pad(input.getMinutes(), '0', 2)
-        when 'p' then input.getHours() >= 12 ? 'PM' : 'AM'
-        when 'S' then pad(input.getSeconds(), '0', 2)
-        # To be implemented 'U' and 'W'
-        when 'w' then input.getDay()
-        # To be implemented 'x' and 'X'
-        when 'y' then input.getFullYear() / 100
-        when 'Y' then input.getFullYear()
-        # To be implemented 'z'
-        else f
-
-  markdownify: (input) ->
-    md(input)
 
 module.exports = Liquid

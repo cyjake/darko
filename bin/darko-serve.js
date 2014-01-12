@@ -16,6 +16,7 @@ program
   .option('--lsi')
   .option('-D --drafts', 'Render posts in the _drafts folder')
   .option('-V --verbose', 'Print verbose output')
+  .option('-t --trace', 'Display backtrace when an error occur', false)
   .option('-B --detach', 'Run the server in the background')
   .option('-P --port [port]', 'Port to listen on', parseInt, '4100')
   .option('-H --host [host]', 'Host to bind to', '0.0.0.0')
