@@ -11,8 +11,8 @@ site.parse()
 
 site.write()
   .fail(function(err) {
-    console.error('Generation failed:')
-    console.error(err.stack)
+    util.error('Generation failed because of:')
+    util.error(err.stack)
   })
   .done(function() {
     util.log('Generating', '... done')

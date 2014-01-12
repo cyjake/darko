@@ -17,5 +17,9 @@
     "darko": "bin/darko.js",
     "darko-build": "bin/darko-build.js",
     "darko-serve": "bin/darko-serve.js"
+  },
+  "devDependencies": {
+    "mocha": "~1.17.0",
+    "should": "~2.1.1"
   }
 }
