@@ -148,11 +148,32 @@ Liquid.Template.registerFilter
     # 12 January 2014
     formatDate(input, '%d %B %Y')
 
-  # xml_escape
+  xml_escape: (input) ->
+    return input unless input?
 
-  # cgi_escape
+    input.replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
 
-  # uri_escape
+
+  # http://stackoverflow.com/questions/2824126/whats-the-difference-between-uri-escape-and-cgi-escape
+  # What's the difference between cgi_escape and uri_escape?
+  # The latter, URI.escape, is deprecated in Ruby.
+  #
+  # encodeURICompnent gives the closest match of the result of CGI.escape,
+  # except that encodeURIComponent uses %20 to escape space but CGI.espace use
+  # the + character.
+  cgi_escape: (input) ->
+    input or= ''
+    encodeURIComponent(input).replace(/%20/g, '+')
+
+  # same thing happens in encodeURI and URI.escape. URI.escape escapes # into
+  # %23 but encodeURI ignores it.
+  uri_escape: (input) ->
+    input or= ''
+    encodeURI(input).replace(/#/g, '%23')
 
   # number_of_words
 

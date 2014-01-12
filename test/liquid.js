@@ -73,4 +73,31 @@ describe('Liquid', function() {
     })
   })
 
+  it('has filter xml_escape', function(done) {
+    liquid('{{ data | xml_escape }}', {
+      data: 'How to go home? Taxi -> Train -> Taxi'
+    }).done(function(res) {
+      res.should.equal('How to go home? Taxi -&gt; Train -&gt; Taxi')
+      done()
+    })
+  })
+
+  it('has filter cgi_escape', function(done) {
+    liquid('{{ data | cgi_escape }}', {
+      data: 'http://google.com/foo?bar=at#anchor&title=My Blog & Your Blog'
+    }).done(function(res) {
+      res.should.equal('http%3A%2F%2Fgoogle.com%2Ffoo%3Fbar%3Dat%23anchor%26title%3DMy+Blog+%26+Your+Blog')
+      done()
+    })
+  })
+
+  it('has filter uri_escape', function(done) {
+    liquid('{{ data | uri_escape }}', {
+      data: 'http://google.com/foo?bar=at#anchor&title=My Blog & Your Blog'
+    }).done(function(res) {
+      res.should.equal('http://google.com/foo?bar=at%23anchor&title=My%20Blog%20&%20Your%20Blog')
+      done()
+    })
+  })
+
 })
