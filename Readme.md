@@ -91,5 +91,5 @@ The markdown and syntax highlighting part of code are shamelessly copied from
 
 ### component, commander.js, and others
 
-`util.log`, `util.error`, and `util.warn` are all copied from component the
-package manager by TJ.
+`util.log`, `util.error`, `util.fatal`, and `util.warn` are all copied from
+[component](https://github.com/component/component) the package manager by TJ.
