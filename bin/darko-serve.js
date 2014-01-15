@@ -155,9 +155,9 @@ function watchPost(dir) {
   debug('Watching for posts in ' + dir)
   fs.watch(dir, function(e, fname) {
     debug('Detected ' + e + ' in ' + dir)
-    if (filename) {
+    if (fname && fname.charAt(0) != '.') {
       debug('Filename is told: ' + fname)
-      updatePost(path.join(dir, fname))
+      updatePage(new Post({ fpath: path.join(dir, fname), site: site }))
     }
     else mark(dir)
   })
@@ -209,7 +209,9 @@ function _mark() {
     return b[1].getTime() - a[1].getTime()
   })[0][0]
 
-  updatePost(new Post({ fpath: path.join(dir, entry), site: site }))
+  if (entry.charAt(0) != '.') {
+    updatePage(new Post({ fpath: path.join(dir, entry), site: site }))
+  }
 }
 
 function updatePage(page) {
