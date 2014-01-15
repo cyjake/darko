@@ -79,11 +79,22 @@ function handle(req, res) {
 
   function sendFile(fpath) {
     debug('Sending ' + fpath)
+    var ext = path.extname(fpath)
+    var map = {
+      '.css': 'text/css'
+    }
+    var contentType = map[ext]
+
+    if (contentType) {
+      res.setHeader('Content-Type', contentType)
+    }
+
+
     fs.createReadStream(fpath)
       .pipe(res)
   }
 
-  var droot = path.join(__dirname, '../server')
+  var droot = path.resolve(__dirname, '../server')
   var dprefix = '/~darko/'
   var fpath
   var f404
