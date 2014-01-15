@@ -16,9 +16,11 @@ Will be working shortly, stay tuned:
 
 Liquid filters to be added:
 
-- Well, most of Jekyll special filters are not implemented in Darko yet.
+- Most of Jekyll special filters are implemented in Darko now.
 - See [this list](http://jekyllrb.com/docs/templates/).
-- I've got markdownify working though, yay.
+- But I've left out textilize.
+
+Tags like post_url are not ready yet. Give me a nudge if you need those.
 
 ## Try
 
