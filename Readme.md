@@ -79,3 +79,17 @@ Darko 来自电影《[Donnie Darko](http://movie.douban.com/subject/1306662/)》
 
 我本想取名 Jekyll.js ，但是要做到 100% 与 Jekyll 保持一致太难了，而且对追求 100% 的人
 来说，他们应该不介意直接用 Jekyll 本身。我搞定 80% 就好。
+
+## Tribute
+
+### nico
+
+The markdown and syntax highlighting part of code are shamelessly copied from
+@lepture's static site generator, [nico](https://github.com/lepture/nico).
+
+@lepture's one of my Node.js hero.
+
+### component, commander.js, and others
+
+`util.log`, `util.error`, and `util.warn` are all copied from component the
+package manager by TJ.
