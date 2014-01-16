@@ -1,6 +1,6 @@
 {
   "name": "darko",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "liquid-node": "~0.1.2",
     "js-yaml": "~3.0.1",
