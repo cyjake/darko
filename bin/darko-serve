@@ -140,15 +140,20 @@ function watch() {
   }, []).forEach(watchPost)
 
   function walk(dir) {
+    switch (path.basename(dir)) {
+      case '_site':
+      case 'node_modules':
+        debug('Ignore changes in ' + path.basename(dir))
+        return
+    }
+
     watchOther(dir)
 
     fs.readdir(dir, function(err, entries) {
       entries.forEach(function(entry) {
         if ('.' == entry.charAt(0) ||
             '_posts' == entry ||
-            '_drafts' == entry ||
-            '_site' == entry ||
-            'node_modules' == entry)
+            '_drafts' == entry)
           return
 
         var fpath = path.join(dir, entry)
@@ -168,7 +173,7 @@ function watchPost(dir) {
     debug('Detected ' + e + ' in ' + dir)
     if (fname && fname.charAt(0) != '.') {
       debug('Filename is told: ' + fname)
-      updatePage(new Post({ fpath: path.join(dir, fname), site: site }))
+      updatePage(path.join(dir, fname))
     }
     else mark(dir)
   })
@@ -177,14 +182,33 @@ function watchPost(dir) {
 function watchOther(dir) {
   debug('Watching for others in ' + dir)
   fs.watch(dir, function(e, fname) {
-    if (fname) {
-      var fpath = path.join(dir, fname)
+    var rpath = path.relative(site.cwd, dir)
+    var fpath = path.join(dir, fname)
 
+    // might be _layouts, _includes, or _data
+    switch (rpath.split(path.sep)[0]) {
+      case '_layouts':
+      case '_includes':
+      case '_data':
+        debug('Regenerating pages and posts')
+        site.writeP()
+          .fail(function(err) {
+            util.error('Regeneration failed.')
+            if (program.trace) util.error(err.stack)
+          })
+          .done(function() {
+            debug('Regenerated pages and posts')
+          })
+        return
+    }
+
+    if (fname) {
       debug('Detected ' + e + ' of ' + fname)
-      if (/\.(md|html)$/.test(fname)) updatePage(new Page({ fpath: fpath, site: site }))
+      if (/\.(md|html)$/.test(fname)) updatePage(fpath)
       else if (!/^[._]/.test(fname)) updateStatic(fpath)
     }
     else {
+      debug('What should I do with empty filename?')
       // TODO: Need to find the very file that was changed
     }
   })
@@ -221,12 +245,16 @@ function _mark() {
   })[0][0]
 
   if (entry.charAt(0) != '.') {
-    updatePage(new Post({ fpath: path.join(dir, entry), site: site }))
+    updatePage(path.join(dir, entry))
   }
 }
 
-function updatePage(page) {
-  var fpath = path.join(site.cwd, page.path)
+function updatePage(fpath) {
+  if (!fs.existsSync(fpath)) {
+    debug('Removed ' + path.relative(site.cwd, fpath))
+  }
+  var Klass = /_posts$/.test(path.dirname(fpath)) ? Post : Page
+  var page = new Klass({fpath: fpath, site: site })
 
   if (fs.existsSync(fpath)) {
     debug('Changed ' + fpath)
