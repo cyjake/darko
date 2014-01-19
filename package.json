@@ -1,6 +1,6 @@
 {
   "name": "darko",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "dependencies": {
     "liquid-node": "~0.1.2",
     "lodash": "~2.4.1",
