@@ -25,13 +25,17 @@ Tags like post_url are not ready yet. Give me a nudge if you need those.
 ## Try
 
 ```bash
-$ git clone git@github.com:dotnil/darko.git
-$ cd darko ; npm link
+$ npm install darko -g
 $ z thx.github.io   # cd into a jekyll site.
 $ darko serve
 ```
 
 Now point your browser to <http://localhost:4100>.
+
+If you're working on project repos and there's no CNAME used, there must be a
+`baseurl` set in your project's _config.yml file. In that case, say your project
+name is `my-project`, you'll need to point your browser to
+<http://localhost:4100/my-project>.
 
 ## Why?
 
