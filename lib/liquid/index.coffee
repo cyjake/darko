@@ -130,6 +130,9 @@ Liquid.Template.registerTag "include", do ->
       @included.then (i) -> i.render context
 
 Liquid.Template.registerFilter
+  capitalize: (input) ->
+    input && input.replace(/^([a-z])/, (m, chr) -> chr.toUpperCase())
+
   date: formatDate
 
   date_to_xmlschema: (input) ->
