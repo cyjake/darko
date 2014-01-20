@@ -79,16 +79,14 @@ function handle(req, res) {
 
   function sendFile(fpath) {
     debug('Sending ' + fpath)
-    var ext = path.extname(fpath)
-    var map = {
+    var mime = {
       '.css': 'text/css'
     }
-    var contentType = map[ext]
+    var contentType = mime[path.extname(fpath)]
 
     if (contentType) {
       res.setHeader('Content-Type', contentType)
     }
-
 
     fs.createReadStream(fpath)
       .pipe(res)
@@ -191,7 +189,7 @@ function watchOther(dir) {
       case '_includes':
       case '_data':
         debug('Regenerating pages and posts')
-        site.writeP()
+        site.writePages()
           .fail(function(err) {
             util.error('Regeneration failed.')
             if (program.trace) util.error(err.stack)
@@ -262,9 +260,17 @@ function updatePage(fpath) {
       util.replace(site.pages, function(_page) {
         return _page.path == page.path ? page : _page
       })
-      site.writeTemplated(page).done(function() {
-        util.log('Regenerated', page.path)
-      })
+      site.writeTemplated(page)
+        .then(function() {
+          return site.writePages()
+        })
+        .fail(function(err) {
+          if (program.trace) util.error(err.stack)
+          else util.error(err.message)
+        })
+        .done(function() {
+          util.log('Regenerated', page.path)
+        })
     }
   }
   else {
