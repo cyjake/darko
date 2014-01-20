@@ -14,13 +14,10 @@ Will be working shortly, stay tuned:
 
 - darko new
 
-Liquid filters to be added:
+Most of Jekyll special filters are implemented in Darko now. See
+[this list](http://jekyllrb.com/docs/templates/). But I've left out `textilize`.
 
-- Most of Jekyll special filters are implemented in Darko now.
-- See [this list](http://jekyllrb.com/docs/templates/).
-- But I've left out textilize.
-
-Tags like post_url are not ready yet. Give me a nudge if you need those.
+Tags like `post_url` are not ready yet. Give me a nudge if you need those.
 
 ## Try
 
