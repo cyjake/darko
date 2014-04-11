@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+'use strict';
 
 var program = require('commander')
 
@@ -60,7 +61,7 @@ process.stdin.resume()
 
 site.parse()
 site.write()
-  .fail(function(err) {
+  .catch(function(err) {
     if (program.trace) console.error(err.stack)
     else util.fatal(err.message)
   })
@@ -97,7 +98,7 @@ function handle(req, res) {
   var fpath
   var f404
 
-  if (req.url.indexOf(dprefix) == 0)
+  if (req.url.indexOf(dprefix) === 0)
     fpath = path.join(droot, req.url.slice(dprefix.length))
   else
     fpath = path.join(site.dest, req.url.slice(1))
@@ -190,7 +191,7 @@ function watchOther(dir) {
       case '_data':
         debug('Regenerating pages and posts')
         site.writePages()
-          .fail(function(err) {
+          .catch(function(err) {
             util.error('Regeneration failed.')
             if (program.trace) util.error(err.stack)
           })
@@ -264,7 +265,7 @@ function updatePage(fpath) {
         .then(function() {
           return site.writePages()
         })
-        .fail(function(err) {
+        .catch(function(err) {
           if (program.trace) util.error(err.stack)
           else util.error(err.message)
         })

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+'use strict';
 
 var program = require('commander')
 
@@ -36,7 +37,7 @@ var site = new Site({
 site.parse()
 
 site.write()
-  .fail(function(err) {
+  .catch(function(err) {
     if (program.trace) console.error(err.stack)
     else util.fatal(err.message)
   })

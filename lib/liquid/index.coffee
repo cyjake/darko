@@ -1,4 +1,4 @@
-Q = require('q')
+Promise = require('bluebird')
 Liquid = require('liquid-node')
 md = require('../markdown')
 highlight = require('../highlight')
@@ -54,12 +54,14 @@ formatDate = (input, format) ->
         prefix + pad(offset, '0', 2) + '00'
       else f
 
-Liquid.Template.registerTag "block", do ->
+engine = new Liquid.Engine
+
+engine.registerTag "block", do ->
   class BlockBlock extends Liquid.Block
     Syntax = /(\w+)/
     SyntaxHelp = "Syntax Error in 'block' - Valid syntax: block [templateName]"
 
-    constructor: (tagName, markup, tokens, template) ->
+    constructor: (template, tagName, markup, tokens) ->
       match = Syntax.exec(markup)
       throw new Liquid.SyntaxError(SyntaxHelp) unless match
 
@@ -71,17 +73,17 @@ Liquid.Template.registerTag "block", do ->
     replace: (block) ->
       @nodelist = block.nodelist
 
-Liquid.Template.registerTag "highlight", do ->
+engine.registerTag "highlight", do ->
   class HighlightBlock extends Liquid.Block
     render: (context) ->
       highlight.render(@nodelist.join('').trim(), @markup)
 
-Liquid.Template.registerTag "extends", do ->
+engine.registerTag "extends", do ->
   class ExtendsTag extends Liquid.Tag
     Syntax = /([a-z0-9\/\\_-]+)/i
     SyntaxHelp = "Syntax Error in 'extends' - Valid syntax: extends [templateName]"
 
-    constructor: (tagName, markup, tokens, template) ->
+    constructor: (template, tagName, markup, tokens) ->
       match = Syntax.exec(markup)
       throw new Liquid.SyntaxError(SyntaxHelp) unless match
 
@@ -91,7 +93,7 @@ Liquid.Template.registerTag "extends", do ->
     render: (context) ->
       ""
 
-Liquid.Template.registerTag "include", do ->
+engine.registerTag "include", do ->
   class IncludeTag extends Liquid.Tag
     Syntax = /([a-z0-9\/\\_-]+)/i
     SyntaxHelp = "Syntax Error in 'include' - Valid syntax: include [templateName]"
@@ -102,12 +104,12 @@ Liquid.Template.registerTag "include", do ->
       ((?:#{Liquid.QuotedFragment.source}))
     ///
 
-    constructor: (tagName, markup, tokens, template) ->
+    constructor: (template, tagName, markup, tokens) ->
       match = Syntax.exec(markup)
       throw new Liquid.SyntaxError(SyntaxHelp) unless match
 
       @filepath = match[1]
-      deferred = Q.defer()
+      deferred = Promise.defer()
       @included = deferred.promise
 
       match = AssignSyntax.exec(markup)
@@ -115,8 +117,8 @@ Liquid.Template.registerTag "include", do ->
         @assignTo = match[1]
         @assignFrom = match[2]
 
-      template.importer @filepath, (err, src) ->
-        subTemplate = Liquid.Template.extParse src, template.importer
+      template.engine.importer @filepath, (err, src) ->
+        subTemplate = engine.extParse src, template.engine.importer
         subTemplate.then (t) -> deferred.resolve t
 
       super
@@ -129,7 +131,7 @@ Liquid.Template.registerTag "include", do ->
 
       @included.then (i) -> i.render context
 
-Liquid.Template.registerFilter
+engine.registerFilter
   capitalize: (input) ->
     input && input.replace(/^([a-z])/, (m, chr) -> chr.toUpperCase())
 
@@ -199,35 +201,35 @@ Liquid.Template.registerFilter
   jsonify: (input) ->
     JSON.stringify(input)
 
-Liquid.Template.extParse = (src, importer) ->
-  baseTemplate = new Liquid.Template
-  baseTemplate.importer = importer
+engine.extParse = (src, importer) ->
+  engine.importer = importer
+  baseTemplate = null
 
-  deferred = Q.defer()
+  deferred = Promise.defer()
 
-  Q.fcall(() ->
-    baseTemplate.parse src
+  Promise.try(() ->
+    baseTemplate = engine.parse src
   ).then(() ->
     return baseTemplate unless baseTemplate.extends
 
-    deferred = Q.defer()
+    deferred = Promise.defer()
     stack = [baseTemplate]
     depth = 0
 
     walker = (tmpl, cb) ->
       return cb() unless tmpl.extends
 
-      tmpl.importer tmpl.extends, (err, data) ->
+      tmpl.engine.importer tmpl.extends, (err, data) ->
         return cb err if err
         return cb "too many `extends`" if depth > 100
         depth++
 
-        Liquid.Template.extParse(data, importer)
+        engine.extParse(data, importer)
           .then((subTemplate) ->
             stack.unshift subTemplate
             walker subTemplate, cb
           )
-          .fail((err) -> cb(err ? "Failed to parse template."))
+          .catch((err) -> cb(err ? "Failed to parse template."))
 
     walker stack[0], (err) =>
       return deferred.reject err if err
@@ -254,4 +256,4 @@ Liquid.Template.extParse = (src, importer) ->
     deferred.promise
   )
 
-module.exports = Liquid
+module.exports = engine

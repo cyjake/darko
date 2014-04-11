@@ -1,0 +1,6 @@
+{
+  "node": true,
+  "asi": true,
+
+  "unused": "vars"
+}
