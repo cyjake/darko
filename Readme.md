@@ -90,6 +90,11 @@ The markdown and syntax highlighting part of code are shamelessly copied from
 
 @lepture's one of my Node.js hero.
 
+### liquid-node
+
+Without @sirlantis' [liquid-node](https://github.com/sirlantis/liquid-node),
+darko won't be possible.
+
 ### component, commander.js, and others
 
 `util.log`, `util.error`, `util.fatal`, and `util.warn` are all copied from
