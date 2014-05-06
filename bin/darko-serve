@@ -93,6 +93,17 @@ function handle(req, res) {
       .pipe(res)
   }
 
+  function send404() {
+    res.statusCode = 404
+    res.setHeader('Content-Type', 'text/html')
+
+    f404 = path.join(site.dest, '404.html')
+    if (!fs.existsSync(f404)) f404 = path.join(droot, '404.html')
+
+    fs.createReadStream(f404)
+      .pipe(res)
+  }
+
   var droot = path.resolve(__dirname, '../server')
   var dprefix = '/~darko/'
   var fpath
@@ -104,15 +115,7 @@ function handle(req, res) {
     fpath = path.join(site.dest, req.url.slice(1))
 
   if (!fs.existsSync(fpath)) {
-    res.statusCode = 404
-    res.setHeader('Content-Type', 'text/html')
-
-    f404 = path.join(site.dest, '404.html')
-    if (!fs.existsSync(f404)) f404 = path.join(droot, '404.html')
-
-    fs.createReadStream(f404)
-      .pipe(res)
-
+    send404()
     return
   }
 
@@ -125,6 +128,7 @@ function handle(req, res) {
     fpath = path.join(fpath, 'index.html')
 
     if (fs.existsSync(fpath)) sendFile(fpath)
+    else send404()
   }
 }
 

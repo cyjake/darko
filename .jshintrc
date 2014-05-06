@@ -1,6 +1,7 @@
 {
   "node": true,
   "asi": true,
+  "esnext": false,
 
   "unused": "vars"
 }
