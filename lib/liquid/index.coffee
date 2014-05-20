@@ -202,58 +202,56 @@ engine.registerFilter
     JSON.stringify(input)
 
 engine.extParse = (src, importer) ->
+  if (!src)
+    throw new Error('Empty liquid template source')
+
+
   engine.importer = importer
-  baseTemplate = null
+  baseTemplate = engine.parse src
+
+  return Promise.cast(baseTemplate) unless baseTemplate.extends
 
   deferred = Promise.defer()
+  stack = [baseTemplate]
+  depth = 0
 
-  Promise.try(() ->
-    baseTemplate = engine.parse src
-  ).then(() ->
-    return baseTemplate unless baseTemplate.extends
+  walker = (tmpl, cb) ->
+    return cb() unless tmpl.extends
 
-    deferred = Promise.defer()
-    stack = [baseTemplate]
-    depth = 0
+    tmpl.engine.importer tmpl.extends, (err, data) ->
+      return cb err if err
+      return cb "too many `extends`" if depth > 100
+      depth++
 
-    walker = (tmpl, cb) ->
-      return cb() unless tmpl.extends
+      engine.extParse(data, importer)
+        .then((subTemplate) ->
+          stack.unshift subTemplate
+          walker subTemplate, cb
+        )
+        .catch((err) -> cb(err ? "Failed to parse template."))
 
-      tmpl.engine.importer tmpl.extends, (err, data) ->
-        return cb err if err
-        return cb "too many `extends`" if depth > 100
-        depth++
+  walker stack[0], (err) =>
+    return deferred.reject err if err
 
-        engine.extParse(data, importer)
-          .then((subTemplate) ->
-            stack.unshift subTemplate
-            walker subTemplate, cb
-          )
-          .catch((err) -> cb(err ? "Failed to parse template."))
+    [rootTemplate, subTemplates...] = stack
 
-    walker stack[0], (err) =>
-      return deferred.reject err if err
+    # Queries should find the block of the lowest,
+    # most specific child.
+    #
+    # query   | root.a | c1.a | c2.a | result
+    # ---------------------------------------
+    # a       |        | "C1" |      | "C1"
+    # a       | "ROOT" | "C1" | "C2" | "C2"
+    #
+    subTemplates.forEach (subTemplate) ->
 
-      [rootTemplate, subTemplates...] = stack
+      # blocks
+      subTemplateBlocks = subTemplate.exportedBlocks or {}
+      rootTemplateBlocks = rootTemplate.exportedBlocks or {}
+      rootTemplateBlocks[k]?.replace(v) for own k, v of subTemplateBlocks
 
-      # Queries should find the block of the lowest,
-      # most specific child.
-      #
-      # query   | root.a | c1.a | c2.a | result
-      # ---------------------------------------
-      # a       |        | "C1" |      | "C1"
-      # a       | "ROOT" | "C1" | "C2" | "C2"
-      #
-      subTemplates.forEach (subTemplate) ->
+    deferred.resolve rootTemplate
 
-        # blocks
-        subTemplateBlocks = subTemplate.exportedBlocks or {}
-        rootTemplateBlocks = rootTemplate.exportedBlocks or {}
-        rootTemplateBlocks[k]?.replace(v) for own k, v of subTemplateBlocks
-
-      deferred.resolve rootTemplate
-
-    deferred.promise
-  )
+  deferred.promise
 
 module.exports = engine
