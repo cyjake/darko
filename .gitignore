@@ -3,3 +3,5 @@
 test/fixture/_site
 
 node_modules
+
+*.sublime-workspace

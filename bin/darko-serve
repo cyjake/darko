@@ -19,7 +19,7 @@ program
   .option('-V --verbose', 'Print verbose output')
   .option('-t --trace', 'Display backtrace when an error occur', false)
   .option('-B --detach', 'Run the server in the background')
-  .option('-P --port [port]', 'Port to listen on', parseInt, '4100')
+  .option('-P --port [port]', 'Port to listen on', parseInt, 4000)
   .option('-H --host [host]', 'Host to bind to', '0.0.0.0')
   .option('-b --baseurl [baseurl]', 'Base URL')
 
@@ -61,11 +61,11 @@ process.stdin.resume()
 
 site.parse()
 site.write()
+  .then(serve)
   .catch(function(err) {
     if (program.trace) console.error(err.stack)
     else util.fatal(err.message)
   })
-  .done(serve)
 
 if (program.watch) watch()
 
@@ -195,12 +195,12 @@ function watchOther(dir) {
       case '_data':
         debug('Regenerating pages and posts')
         site.writePages()
+          .then(function() {
+            debug('Regenerated pages and posts')
+          })
           .catch(function(err) {
             util.error('Regeneration failed.')
             if (program.trace) util.error(err.stack)
-          })
-          .done(function() {
-            debug('Regenerated pages and posts')
           })
         return
     }
@@ -269,12 +269,12 @@ function updatePage(fpath) {
         .then(function() {
           return site.writePages()
         })
+        .then(function() {
+          util.log('Regenerated', page.path)
+        })
         .catch(function(err) {
           if (program.trace) util.error(err.stack)
           else util.error(err.message)
-        })
-        .done(function() {
-          util.log('Regenerated', page.path)
         })
     }
   }

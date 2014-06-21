@@ -11,6 +11,23 @@ WEEKDAYS = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split ' '
 MONTH_ABBRS = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split ' '
 MONTHS = 'January Feburary March April May June July August September October November December'.split ' '
 
+
+toObjectString = Object::toString
+  
+isString = (input) ->
+  toObjectString.call(input) is "[object String]"
+
+toString = (input) ->
+  unless input?
+    ""
+  else if isString input
+    input
+  else if typeof input.toString is "function"
+    input.toString()
+  else
+    toObjectString.call input
+
+
 formatDate = (input, format) ->
   return input unless input?
 
@@ -53,6 +70,7 @@ formatDate = (input, format) ->
         prefix = if offset >= 0 then '+' else '-'
         prefix + pad(offset, '0', 2) + '00'
       else f
+
 
 engine = new Liquid.Engine
 
@@ -131,12 +149,17 @@ engine.registerTag "include", do ->
 
       @included.then (i) -> i.render context
 
-engine.registerFilter
+
+# The standard filters that should be provided by liquid-node
+engine.registerFilters 
   capitalize: (input) ->
     input && input.replace(/^([a-z])/, (m, chr) -> chr.toUpperCase())
 
   date: formatDate
+    
 
+# The custom filters added by Jekyll
+engine.registerFilters
   date_to_xmlschema: (input) ->
     # 2014-01-12T00:00:00+08:00
     formatDate(input, '%Y-%m-%dT%H:%M:%S%z').replace(/00$/, ':00')
@@ -196,15 +219,15 @@ engine.registerFilter
   # should we support textilize?
 
   markdownify: (input) ->
-    md(input)
+    md(toString(input))
 
   jsonify: (input) ->
     JSON.stringify(input)
 
+
 engine.extParse = (src, importer) ->
   if (!src)
     throw new Error('Empty liquid template source')
-
 
   engine.importer = importer
   baseTemplate = engine.parse src
@@ -253,5 +276,6 @@ engine.extParse = (src, importer) ->
     deferred.resolve rootTemplate
 
   deferred.promise
+
 
 module.exports = engine

@@ -1,0 +1,17 @@
+{
+  "node": true,
+  "asi": true,
+  "esnext": false,
+  "strict": false,
+
+  "unused": "vars",
+
+  "globals": {
+  	"describe": true,
+  	"it": true,
+  	"before": true,
+  	"after": true,
+  	"beforeAll": true,
+  	"afterAll": true
+  }
+}
