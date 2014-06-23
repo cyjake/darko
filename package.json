@@ -6,7 +6,7 @@
     "url": "git://github.com/dotnil/darko.git"
   },
   "dependencies": {
-    "liquid-node": "0.3.1",
+    "liquid-node": "~1.0.0",
     "lodash": "~2.4.1",
     "markit": "~0.1.0",
     "mkdirp": "~0.3.5",
