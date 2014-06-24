@@ -27,12 +27,12 @@ $ z thx.github.io   # cd into a jekyll site.
 $ darko serve
 ```
 
-Now point your browser to <http://localhost:4100>.
+Now point your browser to <http://localhost:4000>.
 
 If you're working on project repos and there's no CNAME used, there must be a
 `baseurl` set in your project's _config.yml file. In that case, say your project
 name is `my-project`, you'll need to point your browser to
-<http://localhost:4100/my-project>.
+<http://localhost:4000/my-project>.
 
 ## Why?
 
