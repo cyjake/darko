@@ -11,48 +11,22 @@ WEEKDAYS = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split ' '
 MONTH_ABBRS = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split ' '
 MONTHS = 'January Feburary March April May June July August September October November December'.split ' '
 
-formatDate = (input, format) ->
-  return input unless input?
 
-  pad = (str, chr, width) ->
-    str = '' + str
-    len = Math.max(0, width - str.length)
-    Array(len + 1).join(chr) + str
+toObjectString = Object::toString
 
-  # Liquid StandFilters:
-  # > http://liquid.rubyforge.org/classes/Liquid/StandardFilters.html#M000012
-  #
-  # But there's more to implement:
-  # > http://ruby-doc.org/stdlib-2.1.0/libdoc/date/rdoc/Date.html#method-i-strftime
-  #
-  return format.replace /%([a-zA-Z])/g, (m, f) ->
-    switch f
-      when 'a' then WEEKDAY_ABBRS[input.getDay()]
-      when 'A' then WEEKDAYS[input.getDay()]
-      when 'b' then MONTH_ABBRS[input.getMonth()]
-      when 'B' then MONTHS[input.getMonth()]
-      # To be implemented 'd'
-      when 'd' then pad(input.getDate(), '0', 2)
-      when 'e' then input.getDate()
-      when 'H' then pad(input.getHours(), '0', 2)
-      when 'I' then pad(input.getHours() % 12, '0', 2)
-      when 'j'
-        days = (+input - (new Date(input.getFullYear(), 0, 1))) / 1000 / 60 / 60 / 24
-        pad(days, '0', 3)
-      when 'm' then pad(input.getMonth() + 1, '0', 2)
-      when 'M' then pad(input.getMinutes(), '0', 2)
-      when 'p' then input.getHours() >= 12 ? 'PM' : 'AM'
-      when 'S' then pad(input.getSeconds(), '0', 2)
-      # To be implemented 'U' and 'W'
-      when 'w' then input.getDay()
-      # To be implemented 'x' and 'X'
-      when 'y' then input.getFullYear() / 100
-      when 'Y' then input.getFullYear()
-      when 'z'
-        offset = -input.getTimezoneOffset() / 60
-        prefix = if offset >= 0 then '+' else '-'
-        prefix + pad(offset, '0', 2) + '00'
-      else f
+isString = (input) ->
+  toObjectString.call(input) is "[object String]"
+
+toString = (input) ->
+  unless input?
+    ""
+  else if isString input
+    input
+  else if typeof input.toString is "function"
+    input.toString()
+  else
+    toObjectString.call input
+
 
 engine = new Liquid.Engine
 
@@ -131,27 +105,24 @@ engine.registerTag "include", do ->
 
       @included.then (i) -> i.render context
 
-engine.registerFilter
-  capitalize: (input) ->
-    input && input.replace(/^([a-z])/, (m, chr) -> chr.toUpperCase())
 
-  date: formatDate
-
+# The custom filters added by Jekyll
+engine.registerFilters
   date_to_xmlschema: (input) ->
     # 2014-01-12T00:00:00+08:00
-    formatDate(input, '%Y-%m-%dT%H:%M:%S%z').replace(/00$/, ':00')
+    @date(input, '%Y-%m-%dT%H:%M:%S%z').replace(/00$/, ':00')
 
   date_to_rfc822: (input) ->
     # Sun, 12 Jan 2014 00:00:00 +0800
-    formatDate(input, '%a, %d %b %Y %H:%M:%S %z')
+    @date(input, '%a, %d %b %Y %H:%M:%S %z')
 
   date_to_string: (input) ->
     # 12 Jan 2014
-    formatDate(input, '%d %b %Y')
+    @date(input, '%d %b %Y')
 
   date_to_long_string: (input) ->
     # 12 January 2014
-    formatDate(input, '%d %B %Y')
+    @date(input, '%d %B %Y')
 
   xml_escape: (input) ->
     return input unless input?
@@ -196,15 +167,15 @@ engine.registerFilter
   # should we support textilize?
 
   markdownify: (input) ->
-    md(input)
+    md(toString(input))
 
   jsonify: (input) ->
     JSON.stringify(input)
 
+
 engine.extParse = (src, importer) ->
   if (!src)
     throw new Error('Empty liquid template source')
-
 
   engine.importer = importer
   baseTemplate = engine.parse src
@@ -253,5 +224,6 @@ engine.extParse = (src, importer) ->
     deferred.resolve rootTemplate
 
   deferred.promise
+
 
 module.exports = engine

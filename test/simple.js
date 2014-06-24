@@ -2,7 +2,7 @@ var path = require('path')
 var fs = require('fs')
 var Site = require('..').Site
 var util = require('..').util
-var should = require('should')
+require('should')
 
 
 var site = new Site({
@@ -34,14 +34,14 @@ describe('Site', function() {
 
   it('should write posts, pages, and static files', function(done) {
     site.write()
-      .fail(function(err) {
-        util.error('Generation failed because of:')
-        util.error(err.stack)
-      })
-      .done(function() {
+      .then(function() {
         util.log('Generating', '... done')
         fs.existsSync(site.dest).should.be.ok
         done()
+      })
+      .catch(function(err) {
+        util.error('Generation failed because of:')
+        util.error(err.stack)
       })
   })
 })

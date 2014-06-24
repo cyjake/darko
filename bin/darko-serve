@@ -19,7 +19,7 @@ program
   .option('-V --verbose', 'Print verbose output')
   .option('-t --trace', 'Display backtrace when an error occur', false)
   .option('-B --detach', 'Run the server in the background')
-  .option('-P --port [port]', 'Port to listen on', parseInt, '4100')
+  .option('-P --port [port]', 'Port to listen on', parseInt, 4000)
   .option('-H --host [host]', 'Host to bind to', '0.0.0.0')
   .option('-b --baseurl [baseurl]', 'Base URL')
 
@@ -46,6 +46,7 @@ var Site = require('..').Site
 var Post = require('..').Post
 var Page = require('..').Page
 var util = require('..').util
+var Promise = require('bluebird')
 
 
 var site = new Site({
@@ -61,11 +62,11 @@ process.stdin.resume()
 
 site.parse()
 site.write()
+  .then(serve)
   .catch(function(err) {
     if (program.trace) console.error(err.stack)
     else util.fatal(err.message)
   })
-  .done(serve)
 
 if (program.watch) watch()
 
@@ -195,20 +196,20 @@ function watchOther(dir) {
       case '_data':
         debug('Regenerating pages and posts')
         site.writePages()
+          .then(function() {
+            debug('Regenerated pages and posts')
+          })
           .catch(function(err) {
             util.error('Regeneration failed.')
             if (program.trace) util.error(err.stack)
-          })
-          .done(function() {
-            debug('Regenerated pages and posts')
           })
         return
     }
 
     if (fname) {
       debug('Detected ' + e + ' of ' + fname)
-      if (/\.(md|html)$/.test(fname)) updatePage(fpath)
-      else if (!/^[._]/.test(fname)) updateStatic(fpath)
+      if (/\.(md|html|xml)$/.test(fname)) updatePage(fpath)
+      else if (!/^[\._]/.test(fname)) updateStatic(fpath)
     }
     else {
       debug('What should I do with empty filename?')
@@ -253,39 +254,35 @@ function _mark() {
 }
 
 function updatePage(fpath) {
-  if (!fs.existsSync(fpath)) {
-    debug('Removed ' + path.relative(site.cwd, fpath))
-  }
-  var Klass = /_posts$/.test(path.dirname(fpath)) ? Post : Page
-  var page = new Klass({fpath: fpath, site: site })
-
-  if (fs.existsSync(fpath)) {
-    debug('Changed ' + fpath)
-    if (page.publishable) {
-      util.replace(site.pages, function(_page) {
-        return _page.path == page.path ? page : _page
-      })
-      site.writeTemplated(page)
-        .then(function() {
-          return site.writePages()
+  Promise.try(function() {
+    var Klass = /_posts$/.test(path.dirname(fpath)) ? Post : Page
+    return new Klass({fpath: fpath, site: site })
+  })
+    .then(function(page) {
+      if (fs.existsSync(fpath)) {
+        debug('Changed ' + fpath)
+        util.replace(site.pages, function(_page) {
+          return _page.path == page.path ? page : _page
         })
-        .catch(function(err) {
-          if (program.trace) util.error(err.stack)
-          else util.error(err.message)
+        return site.writeTemplated(page)
+      }
+      else {
+        debug('Removed ' + path.relative(site.cwd, fpath))
+        util.remove(site.pages, function(_page) {
+          return _page.path == page.path
         })
-        .done(function() {
-          util.log('Regenerated', page.path)
-        })
-    }
-  }
-  else {
-    debug('Removed ' + fpath)
-    util.remove(site.pages, function(_page) {
-      return _page.path == page.path
+        fs.unlinkSync(page.dest)
+        util.log('Removed ', path.relative(site.dest, page.dest))
+      }
     })
-    fs.unlinkSync(page.dest)
-    util.log('Removed ', path.relative(site.dest, page.dest))
-  }
+    .then(function(page) {
+      util.log('Regenerated', page.path)
+      return site.writePages()
+    })
+    .catch(function(err) {
+      if (program.trace) util.error(err.stack)
+      else util.error(err.message)
+    })
 }
 
 function updateStatic(fpath) {
@@ -299,6 +296,6 @@ function updateStatic(fpath) {
       if (program.trace) util.error(err.stack)
     })
     .on('finish', function() {
-      debug('Copied file ' + fname)
+      util.log('Copied', fname)
     })
 }

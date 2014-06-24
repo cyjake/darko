@@ -1,9 +1,9 @@
-var should = require('should')
+require('should')
 var Liquid = require('../').Liquid
 
 
 function liquid(tpl, data) {
-  return Liquid.Template.extParse(tpl).then(function(template) {
+  return Liquid.extParse(tpl).then(function(template) {
     return template.render(data)
   })
 }
