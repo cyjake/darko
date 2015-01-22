@@ -187,7 +187,6 @@ function watchOther(dir) {
   debug('Watching for others in ' + dir)
   fs.watch(dir, function(e, fname) {
     var rpath = path.relative(site.cwd, dir)
-    var fpath = path.join(dir, fname)
 
     // might be _layouts, _includes, or _data
     switch (rpath.split(path.sep)[0]) {
@@ -207,6 +206,7 @@ function watchOther(dir) {
     }
 
     if (fname) {
+      var fpath = path.join(dir, fname)
       debug('Detected ' + e + ' of ' + fname)
       if (/\.(md|html|xml)$/.test(fname)) updatePage(fpath)
       else if (!/^[\._]/.test(fname)) updateStatic(fpath)
