@@ -2,6 +2,8 @@
   "node": true,
   "asi": true,
   "esnext": false,
-
-  "unused": "vars"
+  "unused": "vars",
+  "globals": {
+    "Promise": true
+  }
 }
