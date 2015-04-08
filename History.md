@@ -1,3 +1,10 @@
+0.3.1 / 2015-04-08
+==================
+
+ * Bumped patch version to publish the real 0.3.0
+ * The version 0.3.0 was unpublished accidentally
+
+
 0.3.0 / 2015-04-08
 ==================
 
