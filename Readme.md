@@ -17,8 +17,6 @@ Will be working shortly, stay tuned:
 Most of Jekyll special filters are implemented in Darko now. See
 [this list](http://jekyllrb.com/docs/templates/). But I've left out `textilize`.
 
-Tags like `post_url` are not ready yet. Give me a nudge if you need those.
-
 ## Try
 
 ```bash
@@ -97,5 +95,5 @@ darko won't be possible.
 
 ### component, commander.js, and others
 
-`util.log`, `util.error`, `util.fatal`, and `util.warn` are all copied from
-[component](https://github.com/component/component) the package manager by TJ.
+`util.log`, `util.error`, and `util.fatal` are all improvised from
+[component](https://github.com/componentjs/component) the package manager by TJ.

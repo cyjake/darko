@@ -6,7 +6,6 @@ var fs = require('fs')
 
 var util = require('..').util
 var Site = require('..').Site
-var Page = require('..').Page
 
 var exists = fs.existsSync
 

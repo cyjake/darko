@@ -1,3 +1,13 @@
+0.3.0 / 2015-04-08
+==================
+
+ * Re-implement `--watch` with chokidar
+ * Add `post.previous` and `post.next`
+ * Add `post_url`
+ * Remove unnecessary engine methods, embrace FileSystem api
+ * Fix log color
+
+
 0.2.2 / 2015-03-24
 ==================
 
@@ -42,12 +52,14 @@
  * Change from js-yaml to yaml-js, for less dependencies
  * Fix site.baseurl related issue
 
+
 0.0.2 / 2014-01-16
 ==================
 
  * Fix bugs under Windows, mostly `path.sep` related
  * Add tribute to @lepture and @visionmedia
  * Add liquid specific filters, namely xml_escape, uri_escape, and cgi_escape
+
 
 0.0.1 / 2014-01-12
 ==================

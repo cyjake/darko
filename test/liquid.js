@@ -1,13 +1,11 @@
 'use strict';
 
 var expect = require('expect.js')
-var Liquid = require('../').Liquid
+var engine = require('../').Liquid
 
 
 function liquid(tpl, data) {
-  return Liquid.extParse(tpl).then(function(template) {
-    return template.render(data)
-  })
+  return engine.parseAndRender(tpl, data)
 }
 
 describe('Liquid', function() {

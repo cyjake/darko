@@ -15,6 +15,7 @@ program
   .option('--future', 'Publishes posts with a future date')
   .option('-D --drafts', 'Render posts in the _drafts folder')
   .option('-V --verbose', 'Print verbose output')
+  .option('-w --watch', 'Watch for changes and rebuild')
   .parse(process.argv)
 
 
@@ -37,11 +38,14 @@ var site = new Site({
 site.parse()
 
 site.write()
+  .then(function() {
+    util.log('Generating', '... done')
+  })
+  .then(function() {
+    if (program.watch) site.watch()
+  })
   .catch(function(err) {
     if (program.trace) console.error(err.stack)
     else util.fatal(err.message)
-  })
-  .done(function() {
-    util.log('Generating', '... done')
   })
 
