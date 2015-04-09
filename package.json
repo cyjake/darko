@@ -1,6 +1,6 @@
 {
   "name": "darko",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/dotnil/darko.git"
@@ -30,5 +30,7 @@
   "devDependencies": {
     "expect.js": "~0.3.1",
     "mocha": "~2.2.1"
-  }
+  },
+  "license": "MIT",
+  "keywords": [ "jekyll", "site generator" ]
 }
