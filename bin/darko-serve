@@ -13,7 +13,7 @@ program
   })
   .option('--future', 'Publishes posts with a future date')
   .option('--limit_posts [MAX_POSTS]', 'Limits the number of posts to parse and build')
-  .option('-w --watch', 'Watch for changes and rebuild')
+  .option('-w --watch', 'Watch for changes and rebuild', true)
   .option('--lsi')
   .option('-D --drafts', 'Render posts in the _drafts folder')
   .option('-V --verbose', 'Print verbose output')
@@ -71,7 +71,7 @@ site.write()
 
 function serve() {
   http.createServer(handle).listen(program.port, program.host, function() {
-    util.log('Server address', 'http://127.0.0.1:' + program.port)
+    util.log('Server address', 'http://127.0.0.1:' + program.port + site.baseurl)
     util.log('Server running', 'press ctrl-c to stop')
   })
 }
@@ -81,9 +81,11 @@ function handle(req, res) {
   function sendFile(fpath) {
     debug('Sending ' + fpath)
     var mime = {
-      '.css': 'text/css'
+      '.css': 'text/css',
+      '.html': 'text/html',
+      '.js': 'application/javascript'
     }
-    var contentType = mime[path.extname(fpath)]
+    var contentType = mime[path.extname(fpath).toLowerCase()]
 
     if (contentType) {
       res.setHeader('Content-Type', contentType)

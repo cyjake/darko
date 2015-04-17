@@ -1,3 +1,11 @@
+0.3.4 / 2015-04-17
+==================
+
+ * Fix `Content-Type` of `.html`
+ * Turn on `--watch` by default
+ * Append `site.baseurl` onto the server logged in console
+
+
 0.3.3 / 2015-04-13
 ==================
 
