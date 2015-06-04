@@ -1,3 +1,9 @@
+0.3.5 / 2015-06-04
+==================
+
+ * Fix fpath deduction from req.url (should implement req.path though)
+
+
 0.3.4 / 2015-04-17
 ==================
 

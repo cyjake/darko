@@ -111,10 +111,11 @@ function handle(req, res) {
   var fpath
   var f404
 
-  if (req.url.indexOf(dprefix) === 0)
+  if (req.url.indexOf(dprefix) === 0) {
     fpath = path.join(droot, req.url.slice(dprefix.length))
-  else
-    fpath = path.join(site.dest, req.url.slice(1))
+  } else {
+    fpath = path.join(site.dest, req.url.slice(1).split('?').shift())
+  }
 
   if (!fs.existsSync(fpath)) {
     send404()
