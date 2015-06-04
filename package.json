@@ -1,6 +1,6 @@
 {
   "name": "darko",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "repository": {
     "type": "git",
     "url": "git://github.com/dotnil/darko.git"
@@ -32,5 +32,8 @@
     "mocha": "~2.2.1"
   },
   "license": "MIT",
-  "keywords": [ "jekyll", "site generator" ]
+  "keywords": [
+    "jekyll",
+    "site generator"
+  ]
 }
