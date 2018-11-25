@@ -1,8 +1,0 @@
-{
-  "node": true,
-  "asi": true,
-  "esnext": false,
-  "strict": false,
-  "unused": "vars",
-  "mocha": true
-}

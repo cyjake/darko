@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-var program = require('commander')
-var pkg = require('../package')
-
+const program = require('commander')
+const pkg = require('../package')
 
 program
   .version(pkg.version)

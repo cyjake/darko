@@ -1,7 +1,5 @@
 .DS_Store
-
-test/fixture/_site
-
+_site
 node_modules
-
 *.sublime-workspace
+package-lock.json

@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-var program = require('commander')
-
+const program = require('commander')
 
 program
   .option('-s --source [source]', 'Source directory (default to ./)', './')
@@ -25,10 +24,9 @@ if (program.verbose) {
 
 // We need to alter process.env to set DEBUG environment variable **before**
 // requiring the site module.
-var Site = require('..').Site
-var util = require('..').util
+const { util, Site } = require('..')
 
-var site = new Site({
+const site = new Site({
   cwd: program.source,
   dest: program.destination,
   includeDrafts: program.drafts,
@@ -40,12 +38,9 @@ site.parse()
 site.write()
   .then(function() {
     util.log('Generating', '... done')
-  })
-  .then(function() {
     if (program.watch) site.watch()
   })
   .catch(function(err) {
     if (program.trace) console.error(err.stack)
     else util.fatal(err.message)
   })
-

@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-var program = require('commander')
-
+const program = require('commander')
 
 program
   .option('-s --source [source]', 'Source directory (default to ./)', './')
@@ -33,20 +32,18 @@ program.on('--help', function() {
 
 program.parse(process.argv)
 
-
 if (program.verbose) {
   process.env.DEBUG = 'darko,' + (process.env.DEBUG || '')
 }
 
-var http = require('http')
-var path = require('path')
-var fs = require('fs')
-var debug = require('debug')('darko')
-var Site = require('..').Site
-var util = require('..').util
+const http = require('http')
+const path = require('path')
+const fs = require('fs')
+const debug = require('debug')('darko')
+const { util, Site } = require('..')
 
 
-var site = new Site({
+const site = new Site({
   cwd: program.source,
   dest: program.destination,
   includeDrafts: program.drafts,
@@ -60,7 +57,7 @@ process.stdin.resume()
 site.parse()
 site.write()
   .then(function() {
-    if (program.watch) site.watch()
+    if (program.watch !== false) site.watch()
   })
   .then(serve)
   .catch(function(err) {
@@ -80,12 +77,12 @@ function handle(req, res) {
 
   function sendFile(fpath) {
     debug('Sending ' + fpath)
-    var mime = {
+    const mime = {
       '.css': 'text/css',
       '.html': 'text/html',
       '.js': 'application/javascript'
     }
-    var contentType = mime[path.extname(fpath).toLowerCase()]
+    const contentType = mime[path.extname(fpath).toLowerCase()]
 
     if (contentType) {
       res.setHeader('Content-Type', contentType)
@@ -95,22 +92,18 @@ function handle(req, res) {
       .pipe(res)
   }
 
+  const droot = path.resolve(__dirname, '../server')
+  const dprefix = '/~darko/'
+  let notFoundPath = path.join(site.dest, '404.html')
+  if (!fs.existsSync(notFoundPath)) notFoundPath = path.join(droot, '404.html')
+
   function send404() {
     res.statusCode = 404
     res.setHeader('Content-Type', 'text/html')
-
-    f404 = path.join(site.dest, '404.html')
-    if (!fs.existsSync(f404)) f404 = path.join(droot, '404.html')
-
-    fs.createReadStream(f404)
-      .pipe(res)
+    fs.createReadStream(notFoundPath).pipe(res)
   }
 
-  var droot = path.resolve(__dirname, '../server')
-  var dprefix = '/~darko/'
-  var fpath
-  var f404
-
+  let fpath
   if (req.url.indexOf(dprefix) === 0) {
     fpath = path.join(droot, req.url.slice(dprefix.length))
   } else {
@@ -122,7 +115,7 @@ function handle(req, res) {
     return
   }
 
-  var stats = fs.statSync(fpath)
+  const stats = fs.statSync(fpath)
 
   if (stats.isFile()) {
     sendFile(fpath)
