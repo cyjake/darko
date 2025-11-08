@@ -3,7 +3,7 @@ layout: post
 title: Welcome!
 ---
 
-Let's make a front page then just sit around and wait for profit!
+Good luck, have fun!
 
 <ul>
 {% for category in site.categories %}{% if category[0] == 'catus' %}
