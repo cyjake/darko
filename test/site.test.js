@@ -17,8 +17,8 @@ var site = new Site({
 describe('basic attributes of Site', function() {
 
   it('should set cwd and dest', function() {
-    expect(site.cwd).to.contain('test/fixture')
-    expect(site.dest).to.contain('test/fixture/_site')
+    expect(site.cwd.replaceAll(path.sep, '/')).to.contain('test/fixture')
+    expect(site.dest.replaceAll(path.sep, '/')).to.contain('test/fixture/_site')
   })
 
   it('should parse _config.yml', function() {
