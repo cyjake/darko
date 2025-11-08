@@ -1,0 +1,102 @@
+name: Publish
+
+on:
+  # Publish when a GitHub Release is created
+  release:
+    types: [published]
+  # Publish when pushing a version tag like v0.3.7
+  push:
+    tags:
+      - 'v*'
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run npm publish in dry-run mode'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: publish-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # needed for npm provenance (npm publish --provenance)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Ensure tag matches package.json version (if tag/release)
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          case "${GITHUB_EVENT_NAME}" in
+            push)
+              TAG_NAME="${GITHUB_REF_NAME}"
+              ;;
+            release)
+              TAG_NAME="${{ github.event.release.tag_name }}"
+              ;;
+            *)
+              TAG_NAME=""
+              ;;
+          esac
+          if [ -n "$TAG_NAME" ]; then
+            # strip leading 'v'
+            TAG_VERSION=${TAG_NAME#v}
+            echo "Tag: $TAG_NAME -> Version: $TAG_VERSION; package.json: $PKG_VERSION"
+            if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+              echo "Tag $TAG_NAME does not match package.json version $PKG_VERSION" >&2
+              exit 1
+            fi
+          fi
+
+      - name: Determine version & check if already published
+        id: version_check
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          NAME=$(node -p "require('./package.json').name")
+          echo "Package: $NAME Version: $VERSION"
+          if npm view "$NAME@$VERSION" version > /dev/null 2>&1; then
+            echo "Version $VERSION already published. Skipping." >> $GITHUB_STEP_SUMMARY
+            echo "publish_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "publish_needed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish
+        if: steps.version_check.outputs.publish_needed == 'true'
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            npm publish --provenance --access public --dry-run
+          else
+            npm publish --provenance --access public
+          fi
+
+      - name: Success summary
+        if: steps.version_check.outputs.publish_needed == 'true'
+        run: |
+          echo "Published version $(node -p "require('./package.json').version")" >> $GITHUB_STEP_SUMMARY
+
+      - name: Skip summary
+        if: steps.version_check.outputs.publish_needed != 'true'
+        run: echo "Nothing to publish" >> $GITHUB_STEP_SUMMARY
