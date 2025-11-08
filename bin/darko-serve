@@ -3,6 +3,7 @@
 'use strict'
 
 const program = require('commander')
+const mime = require('mime-types')
 
 program
   .option('-s --source [source]', 'Source directory (default to ./)', './')
@@ -77,12 +78,7 @@ function handle(req, res) {
 
   function sendFile(fpath) {
     debug('Sending ' + fpath)
-    const mime = {
-      '.css': 'text/css',
-      '.html': 'text/html',
-      '.js': 'application/javascript'
-    }
-    const contentType = mime[path.extname(fpath).toLowerCase()]
+    const contentType = mime.contentType(path.extname(fpath).toLowerCase())
 
     if (contentType) {
       res.setHeader('Content-Type', contentType)
@@ -111,6 +107,11 @@ function handle(req, res) {
   }
 
   if (!fs.existsSync(fpath)) {
+    send404()
+    return
+  }
+
+  if (!(fpath.startsWith(site.dest) || fpath.startsWith(droot))) {
     send404()
     return
   }

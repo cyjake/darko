@@ -12,6 +12,7 @@
     "highlight.js": "^11.11.1",
     "liquid-node": "^3.0.0",
     "markit": "~0.1.0",
+    "mime-types": "^3.0.1",
     "mkdirp": "~0.3.5",
     "rimraf": "^2.6.2",
     "strftime": "~0.9.0",

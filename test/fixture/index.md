@@ -3,6 +3,8 @@ layout: post
 title: Welcome!
 ---
 
+<img src="/assets/darko.svg">
+
 Good luck, have fun!
 
 <ul>
