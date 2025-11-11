@@ -10,11 +10,12 @@
     "commander": "^2.19.0",
     "debug": "^4.1.0",
     "highlight.js": "^11.11.1",
-    "liquid-node": "^3.0.0",
+    "liquid": "^5.1.1",
     "markit": "~0.1.0",
     "mime-types": "^3.0.1",
     "mkdirp": "~0.3.5",
     "rimraf": "^2.6.2",
+    "sass": "^1.94.0",
     "strftime": "~0.9.0",
     "yaml-js": "^0.2.3"
   },
