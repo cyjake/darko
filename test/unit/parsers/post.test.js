@@ -31,7 +31,7 @@ describe('test/unit/parsers/post.test.js', function() {
       expect(postLinks).to.contain('/felis/egg.html')
 
       // _posts/baz should not be published because it has the published property
-      // set to false in the YAML front mattter.
+      // set to false in the YAML front matter.
       expect(postLinks).to.not.contain('/baz.html')
 
       // _drafts/bad should not be published because it is in the drafts folder.
