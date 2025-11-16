@@ -1,0 +1,11 @@
+defaults:
+  - scope:
+      path: "" # An empty string means all files in the project
+    values:
+      layout: default
+  - scope:
+      path: "projects" # All files in the projects folder
+      type: pages
+    values:
+      layout: project
+      author: "Jane Smith"

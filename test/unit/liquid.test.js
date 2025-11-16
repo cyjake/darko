@@ -1,14 +1,14 @@
 'use strict'
 
 var expect = require('expect.js')
-var engine = require('..').Liquid
+var engine = require('../..').Liquid
 
 
 function liquid(tpl, data) {
   return engine.parseAndRender(tpl, data)
 }
 
-describe('Liquid', function() {
+describe('test/unit/liquid.test.js', function() {
   const timezoneOffset = new Date().getTimezoneOffset();
   const timezone = [
     timezoneOffset > 0 ? '-' : '+',

@@ -25,7 +25,7 @@
     "darko-serve": "bin/darko-serve"
   },
   "scripts": {
-    "test": "mocha test/*.js"
+    "test": "mocha --recursive test"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
