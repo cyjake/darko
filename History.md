@@ -1,3 +1,25 @@
+0.4.0 / 2025-11-17
+==================
+
+## What's Changed
+* feat: upgrade liquid template engine, support `link` tag, support sass/scss by @cyjake in https://github.com/cyjake/darko/pull/24
+* feat: consume defaults in _config.yml by @cyjake in https://github.com/cyjake/darko/pull/25
+
+
+**Full Changelog**: https://github.com/cyjake/darko/compare/v0.3.7...v0.3.8
+
+
+0.3.7 / 2025-11-08
+==================
+
+## What's Changed
+* fix: serve static files with proper content-type by @cyjake in https://github.com/cyjake/darko/pull/21
+* build: publish with github actions by @cyjake in https://github.com/cyjake/darko/pull/22
+
+
+**Full Changelog**: https://github.com/cyjake/darko/compare/v0.3.6...v0.3.7
+
+
 0.3.6 / 2015-06-05
 ==================
 
